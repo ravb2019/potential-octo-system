@@ -66,10 +66,29 @@ class LogoutTest < Logout
     assert_redirected_to root_url
   end
 
+  test "second logout" do
+    delete logout_path
+    assert_redirected_to root_url
+  end
+
   test "redirect after logout" do
     follow_redirect!
     assert_select "a[href=?]", login_path
     assert_select "a[href=?]", logout_path,      count: 0
     assert_select "a[href=?]", user_path(@user), count: 0
   end
+end
+
+class RememberingTest < UsersLogin
+  test "remember login" do
+    log_in_as(@user, remember_me: "1")
+    assert_equal cookies[:remember_token], assigns(:user).remember_token
+  end
+
+  test "not remember login" do
+    log_in_as(@user, remember_me: "1")
+    log_in_as(@user, remember_me: "0")
+    assert_empty cookies[:remember_token]
+  end
+
 end
